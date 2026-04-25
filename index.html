@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>បណ្ណាល័យឌីជីថល</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
+        body { font-family: 'Kantumruy Pro', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { padding: 20px; max-width: 1100px; margin: auto; }
+        .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
+        .book { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; cursor: pointer; border: 1px solid #eee; text-align: center; }
+        .book:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .book img { width: 100%; height: 210px; object-fit: cover; }
+        .book-info { padding: 10px; font-size: 0.85rem; font-weight: bold; color: #333; }
+        #reader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; }
+        .controls { background: #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        iframe { width: 100%; height: calc(100% - 50px); border: none; }
+        .btn-close { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>បណ្ណាល័យឌីជីថលរបស់ខ្ញុំ</h1>
+</header>
+
+<div class="container">
+    <div class="shelf" id="shelf"></div>
+</div>
+
+<div id="reader">
+    <div class="controls">
+        <span id="title"></span>
+        <button class="btn-close" onclick="closeBook()">បិទវិញ</button>
+    </div>
+    <iframe id="viewer"></iframe>
+</div>
+
+<script>
+    const books = [
+        { title: "តែងសេចក្ដី ភាគ១", cover: "https://i.imgur.com/g8v0s8h.png", url: "https://sg.docworkspace.com/d/sbPaukE5TyHohEOB_zg523whyj452bchero" },
+        { title: "តែងសេចក្ដី ភាគ២", cover: "https://i.imgur.com/vH9j2mF.png", url: "https://sg.docworkspace.com/d/sbPauljJkP6wSmSY_6vwp6bc9afk5in4lez" },
+        { title: "តែងសេចក្ដី ភាគ៣", cover: "https://i.imgur.com/fS6U7U8.png", url: "https://sg.docworkspace.com/d/sbPaumcVfGHVvvDt_34dyjwdm3odejk1un8" },
+        { title: "រឿង កាកី", cover: "https://i.imgur.com/WbU1WwR.jpeg", url: "https://sg.docworkspace.com/d/sbPaulkOdTTbpNQq_09ev052b0hu7g12zst" },
+        { title: "រឿង ក្អែកការកូន", cover: "https://i.imgur.com/Hl5N8pP.png", url: "https://sg.docworkspace.com/d/sbPaugHSSH2Fj8EA_127shyvglangd2jode" },
+        { title: "រឿង កុមារចេះភាសាសត្វ", cover: "https://i.imgur.com/6E2hT88.png", url: "https://sg.docworkspace.com/d/sbPaunuyIxSHiziz_0pqvo5ijslyr01y3sp" },
+        { title: "រឿង ក្រពើរមិលគុណ", cover: "https://i.imgur.com/9nFvTfB.png", url: "https://sg.docworkspace.com/d/sbPaueIqnvjRk1Ol_85ezo1mrste7o1mv4l" },
+        { title: "រឿង កុមារពងទាប្រៃ", cover: "https://i.imgur.com/E8j0pZl.png", url: "https://sg.docworkspace.com/d/sbPaumy3ECoH8Tg8_n8hif8tivwlan8t2fg" },
+        { title: "រឿង កំណប់ឪពុក", cover: "https://i.imgur.com/R38U2qL.png", url: "https://sg.docworkspace.com/d/sbPauggsakySybvT_ivklq70dqjspensx6f" },
+        { title: "រឿង ក្រុងឧដុង្គ", cover: "https://i.imgur.com/xTfDkG0.png", url: "https://sg.docworkspace.com/d/sbPaunoYpxAebyaj_spyb4xyv0xmjoxq7kx" }
+    ];
+
+    const shelf = document.getElementById('shelf');
+    books.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'book';
+        div.onclick = () => {
+            document.getElementById('title').innerText = b.title;
+            document.getElementById('viewer').src = b.url;
+            document.getElementById('reader').style.display = 'block';
+        };
+        div.innerHTML = `<img src="${b.cover}"><div class="book-info">${b.title}</div>`;
+        shelf.appendChild(div);
+    });
+
+    function closeBook() {
+        document.getElementById('reader').style.display = 'none';
+        document.getElementById('viewer').src = '';
+    }
+</script>
+</body>
+</html>
+
