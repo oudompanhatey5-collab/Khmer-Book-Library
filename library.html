@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>បណ្ណាល័យឌីជីថលរបស់ខ្ញុំ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* ពណ៌ដើម */
+            --accent-color: #3498db;  /* ពណ៌សង្កត់សំឡេង */
+            --bg-color: #f0f2f5;      /* ពណ៌ផ្ទៃខាងក្រោយ */
+            --header-color: #ffffff;  /* ពណ៌អក្សរក្នុង Header */
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* បិទការ scroll ទៅឆ្វេងស្តាំ */
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--header-color);
+            padding: 15px 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            position: sticky; /* ឱ្យ Header នៅខាងលើរហូត */
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .container {
+            padding: 20px 10px 80px 10px; /* ថែម Padding ខាងក្រោមសម្រាប់កុំឱ្យបាំងប៊ូតុងអាន */
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* តំបន់ធ្នើសៀវភៅ */
+        .book-shelf {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* កែសម្រួលទំហំសម្រាប់ទូរស័ព្ទ */
+            gap: 20px;
+            padding: 0;
+        }
+
+        @media (min-width: 768px) {
+            .book-shelf {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 25px;
+            }
+        }
+
+        /* ផ្ទាំងសៀវភៅនីមួយៗ */
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* រូបភាពក្របសៀវភៅ */
+        .book-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: contain; /* ឱ្យរូបភាពបង្ហាញពេញដោយមិនដាច់ */
+            background-color: #fff; /* ផ្ទៃខាងក្រោយពណ៌សសម្រាប់រូបភាព */
+            border-bottom: 1px solid #eee;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .book-cover {
+                height: 260px;
+            }
+        }
+
+        /* ព័ត៌មានសៀវភៅ */
+        .book-info {
+            padding: 10px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .book-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* បង្ហាញត្រឹម ២ ជួរ */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ប៊ូតុងអាន */
+        .btn-read {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Kantumruy Pro';
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-read:hover {
+            background-color: #2980b9;
+        }
+
+        /* === ផ្ទាំងអាន PDF Fullscreen === */
+        #reader-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85); /* ផ្ទៃខាងក្រោយខ្មៅស្រអាប់ */
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reader-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .reader-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #viewing-title {
+            font-weight: bold;
+            font-size: 1rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70%;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%; /* ឱ្យ Iframe ពេញផ្ទៃ */
+            border: none;
+            flex-grow: 1;
+        }
+
+        .btn-close {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Kantumruy Pro';
+            font-size: 0.9rem;
+        }
+
+        .btn-close:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>បណ្ណាល័យឌីជីថលរបស់ខ្ញុំ</h1>
+    <p>សូមជ្រើសរើសសៀវភៅដើម្បីអាន</p>
+</header>
+
+<div class="container">
+    <div class="book-shelf" id="shelf">
+        </div>
+</div>
+
+<div id="reader-overlay">
+    <div class="reader-container">
+        <div class="reader-header">
+            <span id="viewing-title">កំពុងអាន...</span>
+            <button class="btn-close" onclick="closeReader()">បិទវិញ</button>
+        </div>
+        <iframe id="pdf-viewer" src="" title="PDF Viewer"></iframe>
+    </div>
+</div>
+
+<script>
+    // បញ្ជីទិន្នន័យសៀវភៅ (Link រូបភាពក្រប និង Link សម្រាប់អាន)
+    const books = [
+        {
+            title: "សំណុំតែងសេចក្ដី ភាគ១",
+            cover: "https://i.imgur.com/g8v0s8h.png", // Link រូបភាព image_0
+            link: "https://sg.docworkspace.com/d/sbPaukE5TyHohEOB_zg523whyj452bchero"
+        },
+        {
+            title: "សំណុំតែងសេចក្ដី ភាគ២",
+            cover: "https://i.imgur.com/vH9j2mF.png", // Link រូបភាព image_1
+            link: "https://sg.docworkspace.com/d/sbPauljJkP6wSmSY_6vwp6bc9afk5in4lez"
+        },
+        {
+            title: "សំណុំតែងសេចក្ដី ភាគ៣",
+            cover: "https://i.imgur.com/fS6U7U8.png", // Link រូបភាព image_2
+            link: "https://sg.docworkspace.com/d/sbPaumcVfGHVvvDt_34dyjwdm3odejk1un8"
+        },
+        {
+            title: "រឿង កាកី",
+            cover: "https://i.imgur.com/WbU1WwR.jpeg", // Link រូបភាព image_3
+            link: "https://sg.docworkspace.com/d/sbPaulkOdTTbpNQq_09ev052b0hu7g12zst"
+        },
+        {
+            title: "រឿង ក្អែកការកូន",
+            cover: "https://i.imgur.com/Hl5N8pP.png", // Link រូបភាព image_4
+            link: "https://sg.docworkspace.com/d/sbPaugHSSH2Fj8EA_127shyvglangd2jode"
+        },
+        {
+            title: "រឿង កុមារចេះភាសាសត្វ",
+            cover: "https://i.imgur.com/6E2hT88.png", // Link រូបភាព image_5
+            link: "https://sg.docworkspace.com/d/sbPaunuyIxSHiziz_0pqvo5ijslyr01y3sp"
+        },
+        {
+            title: "រឿង ក្រពើរមិលគុណ",
+            cover: "https://i.imgur.com/9nFvTfB.png", // Link រូបភាព image_6
+            link: "https://sg.docworkspace.com/d/sbPaueIqnvjRk1Ol_85ezo1mrste7o1mv4l"
+        },
+        {
+            title: "រឿង កុមារពងទាប្រៃ",
+            cover: "https://i.imgur.com/E8j0pZl.png", // Link រូបភាព image_7
+            link: "https://sg.docworkspace.com/d/sbPaumy3ECoH8Tg8_n8hif8tivwlan8t2fg"
+        },
+        {
+            title: "រឿង កំណប់ឪពុក",
+            cover: "https://i.imgur.com/R38U2qL.png", // Link រូបភាព image_8
+            link: "https://sg.docworkspace.com/d/sbPauggsakySybvT_ivklq70dqjspensx6f"
+        },
+        {
+            title: "រឿង ក្រុងឧដុង្គ",
+            cover: "https://i.imgur.com/xTfDkG0.png", // Link រូបភាព image_9
+            link: "https://sg.docworkspace.com/d/sbPaunoYpxAebyaj_spyb4xyv0xmjoxq7kx"
+        }
+    ];
+
+    const shelf = document.getElementById('shelf');
+
+    // បង្ហាញសៀវភៅលើអេក្រង់ដោយស្វ័យប្រវត្តិ
+    books.forEach((book) => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        // នៅពេលចុចលើកាត វានឹងបើកផ្ទាំងអាន
+        card.onclick = (e) => {
+            // កុំឱ្យវាបើកអាន បើចុចចំតែប៊ូតុង (ករណីចង់ឱ្យចុចចំរូបភាពក៏បើកដែរ)
+            if (e.target.tagName !== 'BUTTON') {
+                openReader(book.title, book.link);
+            }
+        };
+
+        card.innerHTML = `
+            <img src="${book.cover}" class="book-cover" alt="ក្រប ${book.title}" loading="lazy">
+            <div class="book-info">
+                <div class="book-title" title="${book.title}">${book.title}</div>
+                <button class="btn-read" onclick="openReader('${book.title.replace(/'/g, "\\'")}', '${book.link}')">អានឥឡូវនេះ</button>
+            </div>
+        `;
+        shelf.appendChild(card);
+    });
+
+    // មុខងារបើកផ្ទាំងអាន PDF
+    function openReader(title, link) {
+        document.getElementById('viewing-title').innerText = title;
+        document.getElementById('pdf-viewer').src = link;
+        document.getElementById('reader-overlay').style.display = 'block';
+        // បិទការ scrolling ទំព័រដើម កុំឱ្យរញ៉េរញ៉ៃពេលកំពុងអាន
+        document.body.style.overflow = 'hidden';
+    }
+
+    // មុខងារបិទផ្ទាំងអាន PDF
+    function closeReader() {
+        document.getElementById('pdf-viewer').src = ''; // សម្អាត Iframe កុំឱ្យវាបន្ត Load
+        document.getElementById('reader-overlay').style.display = 'none';
+        // បើកការ scrolling ទំព័រដើមវិញ
+        document.body.style.overflow = 'auto';
+    }
+
+    // បិទផ្ទាំងអាន នៅពេលចុចលើផ្ទៃខ្មៅស្រអាប់ជុំវិញ
+    document.getElementById('reader-overlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeReader();
+        }
+    });
+</script>
+
+</body>
+</html>
+
